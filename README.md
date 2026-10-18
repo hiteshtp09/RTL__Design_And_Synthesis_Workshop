@@ -45,6 +45,7 @@ Each folder holds the Verilog design, its testbench, and the related synthesis o
 | [`dff_asyncres_syncres`](dff_asyncres_syncres/) | D flip-flop with both asynchronous and synchronous reset |
 | [`dff_const`](dff_const/) | Flip-flop with constant inputs, used to observe synthesis optimization |
 | [`counter`](counter/) | Counter design |
+| [`ripple_counter`](ripple_counter/) | Ripple (asynchronous) counter built from chained flip-flops, with testbench, synthesized netlist, schematic and waveform |
 | [`bad_shift_reg`](bad_shift_reg/) | Shift register with a problematic coding style, kept for comparison |
 | [`blocking_caveat`](blocking_caveat/) | Blocking vs. non-blocking assignment pitfalls |
 
@@ -66,6 +67,21 @@ Each folder holds the Verilog design, its testbench, and the related synthesis o
 |---|---|
 | [`library`](library/) | Standard-cell liberty file(s) used for technology mapping |
 
+## Ripple Counter Experiment
+
+The [`ripple_counter`](ripple_counter/) folder contains the full flow for the ripple counter:
+
+| File | Purpose |
+|---|---|
+| `ripple_counter.v` | RTL design |
+| `tb_ripple_counter.v` | Testbench |
+| `tb_ripple_counter.vcd` | Simulation dump for GTKWave |
+| `ripple_counter_net.v` | Gate-level netlist synthesized with Yosys and SKY130 |
+| `ripple_counter_schematic.png` | Schematic of the synthesized netlist |
+| `ripple_counter_waveform.png` | Simulation waveform |
+
+In a ripple counter, each flip-flop is clocked by the output of the previous stage rather than a common clock, so the stages toggle one after another. This makes the design simple but introduces cumulative propagation delay, which is worth checking in the GLS waveform.
+
 ## How to Run
 
 ### 1. Simulate the RTL
@@ -75,6 +91,15 @@ cd <experiment_folder>
 iverilog <design>.v <testbench>.v
 ./a.out
 gtkwave <dumpfile>.vcd
+```
+
+Example:
+
+```bash
+cd ripple_counter
+iverilog ripple_counter.v tb_ripple_counter.v
+./a.out
+gtkwave tb_ripple_counter.vcd
 ```
 
 ### 2. Synthesize with Yosys
@@ -109,6 +134,7 @@ Compare the GLS waveform with the RTL waveform to confirm the netlist matches th
 - Synthesis simplifies constant logic aggressively, e.g. multiplication by a power of two becomes plain wiring.
 - Yosys optimizes across the design when flattened, which changes the hierarchy of the resulting netlist.
 - RTL and gate-level simulation should match; a mismatch usually points to a coding-style issue.
+- Ripple counters chain flip-flop clocks, so output bits settle sequentially rather than simultaneously.
 
 ## Author
 
