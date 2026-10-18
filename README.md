@@ -112,4 +112,4 @@ Compare the GLS waveform with the RTL waveform to confirm the netlist matches th
 
 ## Author
 
-**Hitesh T O**
+**Hitesh T P**
